@@ -68,7 +68,7 @@ export function mockMail(): MailSummary {
       {
         id: 'e1',
         from: 'Vercel',
-        subject: 'Deployment ready: hud-dashboard',
+        subject: 'Deployment ready: DB-HUD',
         snippet: 'Your preview deployment finished building in 41s.',
         receivedAt: isoMinutesAgo(15),
         unread: true,
@@ -84,7 +84,7 @@ export function mockMail(): MailSummary {
       {
         id: 'e3',
         from: 'GitHub',
-        subject: '[hud-dashboard] Review requested on #1',
+        subject: '[DB-HUD] Review requested on #1',
         snippet: 'berryhilljaydavis-spec requested your review.',
         receivedAt: isoMinutesAgo(120),
         unread: false,

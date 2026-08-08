@@ -35,7 +35,7 @@ export function mockSlack(): SlackSummary {
         id: 'm3',
         channel: '#design',
         author: 'kai',
-        text: 'New glow tokens are in Figma — cyan 400 replaced the old accent.',
+        text: 'New glow tokens are in Figma — emerald 400 replaced the old accent.',
         ts: isoMinutesAgo(51),
         mention: false,
       },

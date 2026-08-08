@@ -56,6 +56,10 @@ test('parses task mutation, notes and read-outs', () => {
   assert.deepEqual(parseCommand('next meeting'), { kind: 'next-event' });
   assert.deepEqual(parseCommand('play the latest tbpn'), { kind: 'play-podcast' });
   assert.deepEqual(parseCommand('open podcast'), { kind: 'play-podcast' });
+  assert.deepEqual(parseCommand('pause the episode'), { kind: 'toggle-podcast' });
+  assert.deepEqual(parseCommand('resume'), { kind: 'toggle-podcast' });
+  assert.deepEqual(parseCommand('next episode'), { kind: 'next-episode' });
+  assert.deepEqual(parseCommand('skip'), { kind: 'next-episode' });
   assert.deepEqual(parseCommand('resync'), { kind: 'refresh' });
   assert.deepEqual(parseCommand('quiet'), { kind: 'stop-speaking' });
 });
@@ -123,6 +127,7 @@ test('briefing mentions events, objectives, mentions and demo sources', () => {
       showUrl: 'https://open.spotify.com/show/2L6WMqY3GUPCGBD0dX6p00',
       showUri: 'spotify:show:2L6WMqY3GUPCGBD0dX6p00',
       episode: null,
+      queue: [],
     },
     notes: {
       note: { date: '2026-08-08', body: '', updatedAt: now.toISOString() },

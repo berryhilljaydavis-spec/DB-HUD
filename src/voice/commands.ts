@@ -13,6 +13,8 @@ export type VoiceCommand =
   | { kind: 'read-schedule' }
   | { kind: 'next-event' }
   | { kind: 'play-podcast' }
+  | { kind: 'toggle-podcast' }
+  | { kind: 'next-episode' }
   | { kind: 'refresh' }
   | { kind: 'stop-speaking' };
 
@@ -82,6 +84,14 @@ const PATTERNS: { test: RegExp; build: (match: RegExpMatchArray) => VoiceCommand
   {
     test: /^(?:what'?s\s+)?next(?:\s+(?:meeting|event|up))?$/,
     build: () => ({ kind: 'next-event' }),
+  },
+  {
+    test: /^(?:pause|resume|unpause)(?:\s+(?:the\s+)?(?:podcast|episode|audio|playback|tbpn))?$/,
+    build: () => ({ kind: 'toggle-podcast' }),
+  },
+  {
+    test: /^(?:next|skip)(?:\s+(?:this\s+|the\s+)?(?:episode|podcast|track))?$/,
+    build: () => ({ kind: 'next-episode' }),
   },
   {
     test: /^(?:play|open|start|queue)\s+(?:the\s+)?(?:latest\s+)?(?:tbpn|podcast|episode|show)(?:\s+(?:podcast|episode))?$/,

@@ -3,7 +3,7 @@ import type { Dashboard } from '../shared/types';
 import { api } from './api';
 import { Panel } from './components/Panel';
 import { ReactorCore } from './components/ReactorCore';
-import { PodcastPanel } from './components/PodcastPanel';
+import { PodcastPanel, type PodcastControls } from './components/PodcastPanel';
 import { BarChart, Gauge } from './components/Charts';
 import { CalendarTimeline, MailFeed, SlackFeed } from './components/Feeds';
 import { TasksPanel } from './components/TasksPanel';
@@ -37,6 +37,7 @@ export default function App() {
   const [speaking, setSpeaking] = useState(false);
   const dataRef = useRef<Dashboard | null>(null);
   dataRef.current = data;
+  const podcastControls = useRef<PodcastControls | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -147,12 +148,29 @@ export default function App() {
           return;
         case 'play-podcast': {
           const target = current.podcast.episode;
+          if (podcastControls.current && target) {
+            podcastControls.current.toggle();
+            respond(`Playing ${current.podcast.show}: ${target.title}.`);
+            return;
+          }
           window.open(target?.url ?? current.podcast.showUrl, '_blank', 'noreferrer');
           respond(
             target
               ? `Opening ${current.podcast.show}: ${target.title}.`
               : `Opening ${current.podcast.show} on Spotify.`,
           );
+          return;
+        }
+        case 'toggle-podcast': {
+          if (!podcastControls.current) return respond('No episode loaded.', false);
+          podcastControls.current.toggle();
+          respond('Toggled playback.');
+          return;
+        }
+        case 'next-episode': {
+          if (!podcastControls.current) return respond('No episode loaded.', false);
+          podcastControls.current.next();
+          respond('Next episode.');
           return;
         }
         case 'refresh': {
@@ -245,7 +263,7 @@ export default function App() {
             badge={data.podcast.episode ? 'LATEST EP' : data.podcast.show}
             className="podcast-link"
           >
-            <PodcastPanel podcast={data.podcast} />
+            <PodcastPanel podcast={data.podcast} controlsRef={podcastControls} />
           </Panel>
           <Panel title="Signal Load" badge="12H">
             <BarChart values={data.slack.activity} label="SLACK MESSAGES / HOUR" />

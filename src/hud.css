@@ -468,6 +468,7 @@ body {
 
 .podcast {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -594,6 +595,22 @@ body {
   color: var(--accent);
   background: transparent;
   border-color: var(--accent-faint);
+}
+
+button.podcast-cta {
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.podcast-embed {
+  flex-basis: 100%;
+  margin-top: 10px;
+}
+
+.podcast-embed iframe {
+  border: 1px solid var(--accent-faint);
+  color-scheme: dark;
 }
 
 /* ---------- charts ---------- */

@@ -94,6 +94,8 @@ export interface PodcastSummary {
   showUri: string;
   /** Newest episode, or null when it could not be resolved without credentials. */
   episode: PodcastEpisode | null;
+  /** Newest-first play queue the player cycles through; empty without credentials. */
+  queue: PodcastEpisode[];
 }
 
 export interface Dashboard {

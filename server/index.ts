@@ -8,9 +8,11 @@ import { fetchSlack } from './slack.js';
 import { fetchCalendar, fetchMail, type GoogleCredentials } from './google.js';
 import { fetchEpisodeQueue, podcastFallback, type SpotifyCredentials } from './spotify.js';
 import { addTask, deleteTask, getNotes, saveNote, toggleTask, today } from './store.js';
+import { requirePasscode } from './auth.js';
 
 const app = express();
 app.use(express.json());
+app.use('/api', requirePasscode);
 
 function googleCredentials(): GoogleCredentials | null {
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN } = process.env;

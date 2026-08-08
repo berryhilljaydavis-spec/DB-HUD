@@ -64,8 +64,11 @@ Environment Variables (at minimum `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET`)
 
 Two caveats:
 
-- The deployment URL is public. Since the HUD shows your mail, calendar and notes, turn on
-  Vercel's Deployment Protection (Settings → Deployment Protection) unless you want it open.
+- The deployment URL is public. Set `HUD_PASSCODE` to lock the HUD: every `/api` route then
+  requires `POST /api/login` with that passcode, which sets a signed month-long cookie, and the UI
+  shows a lock screen until it is entered. Vercel's own Deployment Protection (Settings →
+  Deployment Protection) covers preview URLs on Hobby, but only protects the production domain on
+  paid plans — hence the passcode.
 - Notes and tasks fall back to `/tmp` on Vercel, so they are scratch storage that resets when the
   function instance recycles. Point `HUD_DATA_FILE` at a persistent volume, or swap `server/store.ts`
   for a hosted store (Vercel KV, Postgres) for durable notes.

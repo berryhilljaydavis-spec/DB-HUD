@@ -58,6 +58,46 @@ body {
   animation: flicker 1.6s infinite;
 }
 
+.lock {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding: 28px 34px;
+  border: 1px solid var(--accent-faint);
+  background: rgba(0, 0, 0, 0.4);
+  animation: none;
+}
+
+.lock h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.lock p {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+}
+
+.lock input,
+.lock button {
+  font: inherit;
+  letter-spacing: 0.2em;
+  padding: 8px 12px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent-faint);
+}
+
+.lock button {
+  cursor: pointer;
+}
+
+.lock-error {
+  color: var(--warn, #ff6b6b);
+}
+
 /* ---------- header ---------- */
 
 .hud-head {

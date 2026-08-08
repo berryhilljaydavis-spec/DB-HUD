@@ -55,6 +55,21 @@ Production-ish single process:
 npm run build && npm start   # serves dist/ + /api from :8787
 ```
 
+## Deploy to Vercel
+
+`vercel.json` builds the Vite app to `dist/` and `api/index.ts` re-exports the Express app as a
+single serverless function, with `/api/*` rewritten to it. Import the repo at
+<https://vercel.com/new>, then add the same variables from `.env.example` under Settings →
+Environment Variables (at minimum `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET`) and redeploy.
+
+Two caveats:
+
+- The deployment URL is public. Since the HUD shows your mail, calendar and notes, turn on
+  Vercel's Deployment Protection (Settings → Deployment Protection) unless you want it open.
+- Notes and tasks fall back to `/tmp` on Vercel, so they are scratch storage that resets when the
+  function instance recycles. Point `HUD_DATA_FILE` at a persistent volume, or swap `server/store.ts`
+  for a hosted store (Vercel KV, Postgres) for durable notes.
+
 ## Connecting real data
 
 See `.env.example` for the exact variables. Summary:

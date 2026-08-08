@@ -3,7 +3,10 @@ import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { DailyNote, NotesSummary, Task } from '../shared/types.js';
 
-const DATA_FILE = resolve(process.env.HUD_DATA_FILE ?? 'data/notes.json');
+// Serverless filesystems are read-only apart from /tmp, so notes there are per-instance
+// scratch until HUD_DATA_FILE points at durable storage.
+const DEFAULT_DATA_FILE = process.env.VERCEL ? '/tmp/db-hud-notes.json' : 'data/notes.json';
+const DATA_FILE = resolve(process.env.HUD_DATA_FILE ?? DEFAULT_DATA_FILE);
 
 interface StoreShape {
   notes: Record<string, DailyNote>;

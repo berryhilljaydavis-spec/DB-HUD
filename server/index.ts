@@ -145,7 +145,12 @@ if (existsSync(dist)) {
   app.get('*', (_req, res) => res.sendFile(resolve(dist, 'index.html')));
 }
 
-const port = Number(process.env.PORT ?? 8787);
-app.listen(port, () => {
-  console.log(`HUD API listening on http://localhost:${port}`);
-});
+// On Vercel the app is exported as a serverless function instead of listening.
+if (!process.env.VERCEL) {
+  const port = Number(process.env.PORT ?? 8787);
+  app.listen(port, () => {
+    console.log(`HUD API listening on http://localhost:${port}`);
+  });
+}
+
+export default app;

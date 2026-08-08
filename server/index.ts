@@ -6,6 +6,7 @@ import type { Dashboard, SourceStatus } from '../shared/types.js';
 import { mockCalendar, mockMail, mockSlack } from './mock.js';
 import { fetchSlack } from './slack.js';
 import { fetchCalendar, fetchMail, type GoogleCredentials } from './google.js';
+import { fetchLatestEpisode, podcastFallback, type SpotifyCredentials } from './spotify.js';
 import { addTask, deleteTask, getNotes, saveNote, toggleTask, today } from './store.js';
 
 const app = express();
@@ -19,6 +20,12 @@ function googleCredentials(): GoogleCredentials | null {
     clientSecret: GOOGLE_CLIENT_SECRET,
     refreshToken: GOOGLE_REFRESH_TOKEN,
   };
+}
+
+function spotifyCredentials(): SpotifyCredentials | null {
+  const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+  if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) return null;
+  return { clientId: SPOTIFY_CLIENT_ID, clientSecret: SPOTIFY_CLIENT_SECRET };
 }
 
 async function withFallback<T>(
@@ -55,7 +62,9 @@ app.get('/api/dashboard', async (_req, res) => {
     .map((c) => c.trim())
     .filter(Boolean);
 
-  const [slack, mail, calendar] = await Promise.all([
+  const spotify = spotifyCredentials();
+
+  const [slack, mail, calendar, podcast] = await Promise.all([
     withFallback(
       'slack',
       slackToken
@@ -71,6 +80,12 @@ app.get('/api/dashboard', async (_req, res) => {
       mockCalendar,
       statuses,
     ),
+    withFallback(
+      'podcast',
+      spotify ? () => fetchLatestEpisode(spotify, process.env.SPOTIFY_SHOW_ID) : null,
+      () => podcastFallback(process.env.SPOTIFY_SHOW_ID),
+      statuses,
+    ),
   ]);
 
   const notes = await getNotes();
@@ -84,6 +99,7 @@ app.get('/api/dashboard', async (_req, res) => {
     mail,
     calendar,
     notes,
+    podcast,
   };
   res.json(dashboard);
 });

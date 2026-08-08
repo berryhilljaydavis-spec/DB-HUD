@@ -5,16 +5,19 @@ const LABELS: Record<SourceStatus['name'], string> = {
   gmail: 'GMAIL',
   calendar: 'CALENDAR',
   notes: 'LOCAL STORE',
+  podcast: 'SPOTIFY',
 };
 
 export function StatusBar({
   sources,
   refreshedAt,
   onRefresh,
+  voiceActive = false,
 }: {
   sources: SourceStatus[];
   refreshedAt: Date | null;
   onRefresh: () => void;
+  voiceActive?: boolean;
 }) {
   return (
     <div className="statusbar">
@@ -29,6 +32,7 @@ export function StatusBar({
         ))}
       </ul>
       <div className="statusbar-right">
+        {voiceActive ? <span className="mic-live">MIC LIVE</span> : null}
         {refreshedAt ? (
           <span className="synced">
             SYNC {refreshedAt.toLocaleTimeString(undefined, { hour12: false })}

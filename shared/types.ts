@@ -1,7 +1,7 @@
 export type SourceMode = 'live' | 'mock';
 
 export interface SourceStatus {
-  name: 'slack' | 'gmail' | 'calendar' | 'notes';
+  name: 'slack' | 'gmail' | 'calendar' | 'notes' | 'podcast';
   mode: SourceMode;
   ok: boolean;
   detail: string;
@@ -75,6 +75,27 @@ export interface NotesSummary {
   tasks: Task[];
 }
 
+export interface PodcastEpisode {
+  id: string;
+  title: string;
+  description: string;
+  releasedAt: string;
+  durationMinutes: number;
+  imageUrl: string;
+  /** Web player link. */
+  url: string;
+  /** Desktop-app deep link, e.g. spotify:episode:… */
+  uri: string;
+}
+
+export interface PodcastSummary {
+  show: string;
+  showUrl: string;
+  showUri: string;
+  /** Newest episode, or null when it could not be resolved without credentials. */
+  episode: PodcastEpisode | null;
+}
+
 export interface Dashboard {
   generatedAt: string;
   date: string;
@@ -83,4 +104,5 @@ export interface Dashboard {
   mail: MailSummary;
   calendar: CalendarSummary;
   notes: NotesSummary;
+  podcast: PodcastSummary;
 }

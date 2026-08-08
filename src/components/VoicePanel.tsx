@@ -22,7 +22,7 @@ const EXAMPLES = [
   '"complete standup notes"',
   '"note shipped the voice console"',
   '"read my inbox" · "next meeting" · "briefing"',
-  '"play the latest TBPN"',
+  '"play the latest TBPN" · "pause" · "next episode"',
 ];
 
 export function VoicePanel({

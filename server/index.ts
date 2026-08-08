@@ -6,7 +6,7 @@ import type { Dashboard, SourceStatus } from '../shared/types.js';
 import { mockCalendar, mockMail, mockSlack } from './mock.js';
 import { fetchSlack } from './slack.js';
 import { fetchCalendar, fetchMail, type GoogleCredentials } from './google.js';
-import { fetchLatestEpisode, podcastFallback, type SpotifyCredentials } from './spotify.js';
+import { fetchEpisodeQueue, podcastFallback, type SpotifyCredentials } from './spotify.js';
 import { addTask, deleteTask, getNotes, saveNote, toggleTask, today } from './store.js';
 
 const app = express();
@@ -82,7 +82,7 @@ app.get('/api/dashboard', async (_req, res) => {
     ),
     withFallback(
       'podcast',
-      spotify ? () => fetchLatestEpisode(spotify, process.env.SPOTIFY_SHOW_ID) : null,
+      spotify ? () => fetchEpisodeQueue(spotify, process.env.SPOTIFY_SHOW_ID) : null,
       () => podcastFallback(process.env.SPOTIFY_SHOW_ID),
       statuses,
     ),

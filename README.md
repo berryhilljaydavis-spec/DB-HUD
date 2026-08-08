@@ -34,7 +34,8 @@ Hit `ENGAGE VOICE` and talk; an optional wake word (`HUD`, `computer`, `DB`) is 
 | "complete standup notes" / "delete standup notes" | Fuzzy-matches an existing objective |
 | "note that the migration finished" | Appends a timestamped line to the Daily Log |
 | "read my inbox" / "slack" / "schedule" / "next meeting" | Reads that panel aloud |
-| "play the latest TBPN" | Opens the newest episode on Spotify |
+| "play the latest TBPN" | Starts the newest Diet TBPN episode in the Podcast panel |
+| "pause" / "resume" · "next episode" / "skip" | Controls the embedded player |
 | "refresh" / "stop" | Re-syncs the HUD / silences speech |
 
 Speech runs entirely in the browser via the Web Speech API, so it needs Chrome or Edge and
@@ -67,7 +68,10 @@ See `.env.example` for the exact variables. Summary:
 - **Spotify** — create an app at <https://developer.spotify.com/dashboard> and set
   `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET`. No user login is involved (client-credentials
   flow, public show data). Without them the Podcast panel links to the TBPN show page instead of
-  the newest episode.
+  the newest episode. The panel queues the newest `SPOTIFY_TITLE_FILTER` episodes (default `diet`,
+  i.e. the condensed Diet TBPN cuts) and auto-advances to the next one when one ends; set the
+  filter to empty to queue every episode. Playback uses Spotify's embed, which offers play/pause
+  and seek but no volume control, and only plays full episodes for logged-in Premium listeners.
 - **Notes and tasks** — stored locally in `data/notes.json` (path configurable via
   `HUD_DATA_FILE`). No external service required.
 

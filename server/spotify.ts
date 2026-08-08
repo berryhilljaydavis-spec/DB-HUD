@@ -1,4 +1,4 @@
-import type { PodcastSummary } from '../shared/types.js';
+import type { PodcastEpisode, PodcastSummary } from '../shared/types.js';
 
 /** TBPN — https://open.spotify.com/show/2L6WMqY3GUPCGBD0dX6p00 */
 export const TBPN_SHOW_ID = '2L6WMqY3GUPCGBD0dX6p00';
@@ -50,6 +50,12 @@ interface SpotifyEpisode {
   uri: string;
 }
 
+/** Only the condensed "Diet TBPN" cuts, unless overridden. */
+const DEFAULT_TITLE_FILTER = 'diet';
+
+/** How many episodes the player can auto-advance through. */
+const QUEUE_LENGTH = 12;
+
 /** Show page link, used whenever we cannot resolve a specific episode. */
 export function podcastFallback(showId = TBPN_SHOW_ID): PodcastSummary {
   return {
@@ -57,36 +63,44 @@ export function podcastFallback(showId = TBPN_SHOW_ID): PodcastSummary {
     showUrl: `https://open.spotify.com/show/${showId}`,
     showUri: `spotify:show:${showId}`,
     episode: null,
+    queue: [],
   };
 }
 
-export async function fetchLatestEpisode(
+function toEpisode(episode: SpotifyEpisode): PodcastEpisode {
+  return {
+    id: episode.id,
+    title: episode.name,
+    description: episode.description,
+    releasedAt: episode.release_date,
+    durationMinutes: Math.round(episode.duration_ms / 60_000),
+    imageUrl: episode.images?.slice().sort((a, b) => (a.width ?? 0) - (b.width ?? 0))[0]?.url ?? '',
+    url: episode.external_urls.spotify,
+    uri: episode.uri,
+  };
+}
+
+/**
+ * Newest-first queue of episodes matching the title filter, so the player can
+ * cycle into the next one when the current episode ends.
+ */
+export async function fetchEpisodeQueue(
   credentials: SpotifyCredentials,
   showId = TBPN_SHOW_ID,
   market = process.env.SPOTIFY_MARKET ?? 'US',
+  titleFilter = process.env.SPOTIFY_TITLE_FILTER ?? DEFAULT_TITLE_FILTER,
 ): Promise<PodcastSummary> {
   const accessToken = await getAccessToken(credentials);
   const res = await fetch(
-    `https://api.spotify.com/v1/shows/${showId}/episodes?limit=1&market=${market}`,
+    `https://api.spotify.com/v1/shows/${showId}/episodes?limit=50&market=${market}`,
     { headers: { Authorization: `Bearer ${accessToken}` } },
   );
   if (!res.ok) throw new Error(`spotify episodes request failed (${res.status})`);
-  const body = (await res.json()) as { items?: SpotifyEpisode[] };
-  const episode = body.items?.[0];
-  const summary = podcastFallback(showId);
-  if (!episode) return summary;
-  return {
-    ...summary,
-    episode: {
-      id: episode.id,
-      title: episode.name,
-      description: episode.description,
-      releasedAt: episode.release_date,
-      durationMinutes: Math.round(episode.duration_ms / 60_000),
-      imageUrl:
-        episode.images?.slice().sort((a, b) => (a.width ?? 0) - (b.width ?? 0))[0]?.url ?? '',
-      url: episode.external_urls.spotify,
-      uri: episode.uri,
-    },
-  };
+  const body = (await res.json()) as { items?: (SpotifyEpisode | null)[] };
+  const items = (body.items ?? []).filter((item): item is SpotifyEpisode => item !== null);
+  const needle = titleFilter.toLowerCase();
+  const matching = needle === '' ? items : items.filter((item) => item.name.toLowerCase().includes(needle));
+  // Fall back to the unfiltered feed if the filter matched nothing.
+  const queue = (matching.length > 0 ? matching : items).slice(0, QUEUE_LENGTH).map(toEpisode);
+  return { ...podcastFallback(showId), episode: queue[0] ?? null, queue };
 }

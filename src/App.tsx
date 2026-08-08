@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dashboard } from '../shared/types';
-import { api } from './api';
+import { api, LockedError } from './api';
+import { LockScreen } from './components/LockScreen';
 import { Panel } from './components/Panel';
 import { ReactorCore } from './components/ReactorCore';
 import { PodcastPanel, type PodcastControls } from './components/PodcastPanel';
@@ -30,6 +31,7 @@ const VOICE_LOG_LIMIT = 4;
 export default function App() {
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
   const [refreshedAt, setRefreshedAt] = useState<Date | null>(null);
   const [now, setNow] = useState(() => new Date());
   const [voiceLog, setVoiceLog] = useState<VoiceLogEntry[]>([]);
@@ -45,8 +47,13 @@ export default function App() {
       setData(next);
       setRefreshedAt(new Date());
       setError(null);
+      setLocked(false);
       return next;
     } catch (cause) {
+      if (cause instanceof LockedError) {
+        setLocked(true);
+        return null;
+      }
       setError(cause instanceof Error ? cause.message : 'failed to load dashboard');
       return null;
     }
@@ -200,6 +207,8 @@ export default function App() {
     const tick = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(tick);
   }, []);
+
+  if (locked) return <LockScreen onUnlock={() => void load()} />;
 
   if (!data) {
     return (
